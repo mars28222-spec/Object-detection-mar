@@ -1,3 +1,6 @@
+import os
+os.system("apt-get update -y && apt-get install -y libgl1 libglib2.0-0")
+
 import streamlit as st
 from ultralytics import YOLO
 import tensorflow as tf
@@ -5,6 +8,7 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
 import cv2
+
 
 # ==========================
 # Load Models

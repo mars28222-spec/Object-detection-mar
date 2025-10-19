@@ -46,7 +46,8 @@ uploaded_file = st.file_uploader("📤 Unggah gambar di sini", type=["jpg", "jpe
 # 🖼️ Tampilkan gambar
 # ==========================
 if uploaded_file is not None:
-    img = Image.open(uploaded_file)
+    # 🔹 Pastikan gambar hanya punya 3 channel (RGB)
+    img = Image.open(uploaded_file).convert("RGB")
     st.image(img, caption="Gambar yang Diupload", use_container_width=True)
     st.divider()
 
@@ -59,7 +60,6 @@ if uploaded_file is not None:
         result_img = results[0].plot()
         st.image(result_img, caption="Hasil Deteksi YOLO", use_container_width=True)
 
-        # Menampilkan label deteksi dan confidence score
         detections = results[0].boxes
         if len(detections) > 0:
             for i, box in enumerate(detections):
@@ -76,26 +76,26 @@ if uploaded_file is not None:
     elif menu == "Klasifikasi Retakan (CNN)":
         st.subheader("🧠 Hasil Klasifikasi Gambar")
 
-        # Preprocessing gambar
+        # 🔹 Preprocessing gambar (pastikan RGB, ukuran, dan skala)
         img_resized = img.resize((224, 224))
         img_array = image.img_to_array(img_resized)
         img_array = np.expand_dims(img_array, axis=0)
         img_array = img_array / 255.0
 
-        # Prediksi
+        # 🔹 Prediksi
         prediction = classifier.predict(img_array)
         class_index = np.argmax(prediction)
         confidence = np.max(prediction)
 
-        # Label kelas
+        # 🔹 Label kelas
         class_labels = ["Bukan Retakan", "Retakan"]
         predicted_label = class_labels[class_index]
 
-        # Tampilkan hasil
+        # 🔹 Tampilkan hasil
         st.success(f"**Prediksi:** {predicted_label}")
         st.write(f"**Tingkat Keyakinan Model:** {confidence*100:.2f}%")
 
-        # Penjelasan tambahan
+        # 🔹 Penjelasan tambahan
         if predicted_label == "Retakan":
             st.markdown("🧱 Gambar ini **terdeteksi mengandung retakan**. Perlu diperiksa lebih lanjut.")
         else:

@@ -16,7 +16,7 @@ def load_models():
     # YOLO untuk deteksi sendok dan garpu
     yolo_model = YOLO("model/Siti Marlina_Laporan 4.pt")  
     
-    # Model klasifikasi untuk retakan vs non-retakan
+    # Model CNN untuk klasifikasi retakan vs bukan retakan
     classifier = tf.keras.models.load_model("model/Siti Marlina_Laporan 2.h5")  
     return yolo_model, classifier
 
@@ -25,12 +25,16 @@ yolo_model, classifier = load_models()
 # ==========================
 # 🎨 UI
 # ==========================
-st.title("🍴🔍 Aplikasi Deteksi & Klasifikasi Gambar")
+st.title("🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas")
 st.markdown(
     """
-    Aplikasi ini memiliki dua fitur utama:
-    1. **Deteksi Objek (YOLO)** → Mengenali **sendok** dan **garpu** pada gambar.
-    2. **Klasifikasi Gambar (CNN)** → Membedakan antara **gambar retakan** dan **bukan retakan**.
+    Selamat datang di **SmartVision**, aplikasi berbasis kecerdasan buatan yang siap membantu kamu menganalisis gambar secara otomatis! 🤖  
+    Aplikasi ini memiliki dua fitur unggulan:
+    
+    - 🍽️ **Deteksi Objek (YOLO)** → Mengenali keberadaan **sendok** dan **garpu** dalam gambar secara cepat dan akurat.  
+    - 🧱 **Klasifikasi Gambar (CNN)** → Membedakan antara **retakan** dan **permukaan normal** menggunakan teknologi *deep learning*.
+    
+    Unggah gambar favoritmu dan biarkan AI bekerja! 🚀
     """
 )
 

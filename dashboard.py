@@ -17,7 +17,7 @@ def load_models():
     yolo_model = YOLO("model/Siti Marlina_Laporan 4.pt")  
     
     # Model CNN untuk klasifikasi retakan vs bukan retakan
-    model = tf.keras.models.load_model("model/Siti Marlina_laporan 2 (1).h5")  
+    classifier = tf.keras.models.load_model("model/Siti Marlina_laporan 2 (1).h5")  
     return yolo_model, classifier
 
 yolo_model, classifier = load_models()

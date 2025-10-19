@@ -1,3 +1,27 @@
+# Tambahkan ini di bawah import streamlit as st
+def set_background(image_file):
+    with open(image_file, "rb") as f:
+        data = f.read()
+    import base64
+    encoded = base64.b64encode(data).decode()
+    css = f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/png;base64,{encoded}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }}
+    </style>
+    """
+    st.markdown(css, unsafe_allow_html=True)
+
+# Panggil fungsi ini untuk set background
+set_background("assets/background.png")
+
+
+
+
 import os
 os.system("apt-get update -y && apt-get install -y libgl1 libglib2.0-0")
 

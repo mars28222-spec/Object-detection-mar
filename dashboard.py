@@ -1,3 +1,23 @@
+def add_bg_from_url(url):
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-image: url("{url}");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+# Contoh pakai gambar daun muda
+add_bg_from_url("https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80")
+
+
+
 import os
 os.system("apt-get update -y && apt-get install -y libgl1 libglib2.0-0")
 

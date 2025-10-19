@@ -1,7 +1,12 @@
 streamlit
+torch
+torchvision
 ultralytics
-tensorflow
 opencv-python-headless
-pillow
+tensorflow
+keras
 numpy
+pandas
+Pillow
+matplotlib
 protobuf

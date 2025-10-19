@@ -6,29 +6,52 @@ from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
 
-# ==========================
-# 🌿 Tambahkan Background
-# ==========================
-def add_bg_from_url(url):
-    st.markdown(
-        f"""
-        <style>
-        .stApp {{
-            background-image: url("{url}");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-# Contoh pakai gambar daun muda
-add_bg_from_url("https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1200&q=80")
 
 # ==========================
-# 🔹 Setup environment (opsional di Streamlit Cloud)
+# 🌿 Tambahkan CSS BG hanya di bagian tertentu
+# ==========================
+st.markdown(
+    """
+    <style>
+    /* ====== Judul Utama ====== */
+    .title-container {
+        background: url("https://raw.githubusercontent.com/username/repo/main/bg-judul.jpg");
+        background-size: cover;
+        background-position: center;
+        padding: 25px;
+        border-radius: 20px;
+        text-align: center;
+        font-weight: bold;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        margin-bottom: 20px;
+    }
+
+    /* ====== Sidebar ====== */
+    section[data-testid="stSidebar"] {
+        background: url("https://raw.githubusercontent.com/username/repo/main/bg-sidebar.jpg");
+        background-size: cover;
+        background-position: center;
+        color: white;
+    }
+
+    /* ====== Area Upload ====== */
+    [data-testid="stFileUploaderDropzone"] {
+        background: url("https://raw.githubusercontent.com/username/repo/main/bg-upload.jpg");
+        background-size: cover;
+        background-position: center;
+        border: 2px dashed white;
+        border-radius: 15px;
+        color: white;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# ==========================
+# 🔹 Setup environment 
 # ==========================
 os.system("apt-get update -y && apt-get install -y libgl1 libglib2.0-0")
 
@@ -46,7 +69,15 @@ yolo_model, classifier = load_models()
 # ==========================
 # 🎨 UI
 # ==========================
-st.title("🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas")
+st.markdown(
+    """
+    <div class="title-container">
+        <h1>🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas</h1>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 st.markdown(
     """
     Selamat datang di **SmartVision**, aplikasi berbasis kecerdasan buatan yang siap membantu kamu menganalisis gambar secara otomatis! 🤖  
@@ -112,16 +143,9 @@ if uploaded_file is not None:
 
         if prediction >= 0.5:
             predicted_label = "Retakan"
-        else:
-            predicted_label = "Bukan Retakan"
-
-        st.image(img_resized, caption="🖼️ Gambar yang Diprediksi", use_column_width=True)
-        st.success(f"**Prediksi:** {predicted_label}")
-        st.write(f"**Tingkat Keyakinan Model:** {confidence*100:.2f}%")
-
-        if predicted_label == "Retakan":
             st.markdown("🧱 Terlihat ada **retakan!** Mungkin waktunya perbaikan 💥")
         else:
+            predicted_label = "Bukan Retakan"
             st.markdown("✅ Permukaannya **halus dan kuat**, tidak ada retakan berarti 💪")
 
 else:

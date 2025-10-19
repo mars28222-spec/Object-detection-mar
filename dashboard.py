@@ -74,32 +74,33 @@ if uploaded_file is not None:
     # 🧱 Mode 2 - Klasifikasi Retakan
     # =======================================
     elif menu == "Klasifikasi Retakan (CNN)":
-        st.subheader("🧠 Hasil Klasifikasi Gambar")
+    st.subheader("🧠 Hasil Klasifikasi Gambar")
 
-        # 🔹 Preprocessing gambar (pastikan RGB, ukuran, dan skala)
-        img_resized = img.resize((224, 224))
-        img_array = image.img_to_array(img_resized)
-        img_array = np.expand_dims(img_array, axis=0)
-        img_array = img_array / 255.0
+    # 🔹 Preprocessing gambar (otomatis sesuai ukuran input model)
+    target_size = classifier.input_shape[1:3]
+    img_resized = img.resize(target_size)
+    img_array = image.img_to_array(img_resized)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array = img_array / 255.0
 
-        # 🔹 Prediksi
-        prediction = classifier.predict(img_array)
-        class_index = np.argmax(prediction)
-        confidence = np.max(prediction)
+    # 🔹 Prediksi
+    prediction = classifier.predict(img_array)
+    class_index = np.argmax(prediction)
+    confidence = np.max(prediction)
 
-        # 🔹 Label kelas
-        class_labels = ["Bukan Retakan", "Retakan"]
-        predicted_label = class_labels[class_index]
+    # 🔹 Label kelas
+    class_labels = ["Bukan Retakan", "Retakan"]
+    predicted_label = class_labels[class_index]
 
-        # 🔹 Tampilkan hasil
-        st.success(f"**Prediksi:** {predicted_label}")
-        st.write(f"**Tingkat Keyakinan Model:** {confidence*100:.2f}%")
+    # 🔹 Tampilkan hasil
+    st.success(f"**Prediksi:** {predicted_label}")
+    st.write(f"**Tingkat Keyakinan Model:** {confidence*100:.2f}%")
 
-        # 🔹 Penjelasan tambahan
-        if predicted_label == "Retakan":
-            st.markdown("🧱 Gambar ini **terdeteksi mengandung retakan**. Perlu diperiksa lebih lanjut.")
-        else:
-            st.markdown("✅ Gambar ini **tidak menunjukkan adanya retakan yang signifikan.**")
+    # 🔹 Penjelasan tambahan
+    if predicted_label == "Retakan":
+        st.markdown("🧱 Gambar ini **terdeteksi mengandung retakan**. Perlu diperiksa lebih lanjut.")
+    else:
+        st.markdown("✅ Gambar ini **tidak menunjukkan adanya retakan yang signifikan.**")
 
 # Jika belum upload
 else:

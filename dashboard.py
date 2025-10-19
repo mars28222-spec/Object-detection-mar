@@ -83,18 +83,20 @@ if uploaded_file is not None:
         img_array = np.expand_dims(img_array, axis=0)
         img_array = img_array / 255.0
 
-        # 🔹 Prediksi
-        prediction = classifier.predict(img_array)
-        class_index = np.argmax(prediction)
-        confidence = np.max(prediction)
+        # 🔹 Prediksi (untuk model biner sigmoid)
+        prediction = classifier.predict(img_array)[0][0]
+        confidence = prediction if prediction >= 0.5 else 1 - prediction
 
-        # 🔹 Label kelas
-        class_labels = ["Bukan Retakan", "Retakan"]
-        predicted_label = class_labels[class_index]
+        if prediction >= 0.5:
+            predicted_label = "Retakan"
+        else:
+            predicted_label = "Bukan Retakan"
 
         # 🔹 Tampilkan hasil
+        st.image(img_resized, caption="🖼️ Gambar yang Diprediksi", use_column_width=True)
         st.success(f"**Prediksi:** {predicted_label}")
         st.write(f"**Tingkat Keyakinan Model:** {confidence*100:.2f}%")
+        st.write(f"**Nilai Probabilitas (Sigmoid Output):** {prediction:.4f}")
 
         # 🔹 Penjelasan tambahan
         if predicted_label == "Retakan":

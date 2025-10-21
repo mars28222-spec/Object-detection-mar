@@ -4,5 +4,9 @@ torchvision
 ultralytics
 opencv-python-headless
 tensorflow
+keras
+numpy
+pandas
 Pillow
+matplotlib
 protobuf

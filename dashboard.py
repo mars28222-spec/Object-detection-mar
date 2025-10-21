@@ -51,11 +51,10 @@ menu = st.sidebar.selectbox("", ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi R
 st.sidebar.markdown('<div style="background-color:#87CEFA;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Unggah Gambar (1-2)</div>', unsafe_allow_html=True)
 
 # ==========================
-# Tombol Refresh
+# Tombol Refresh & kalimat tetap tampil
 # ==========================
-if st.sidebar.button("🔄 Refresh"):
-    refresh_dashboard()
-    st.sidebar.info("Silakan refresh untuk memprediksi gambar baru.")
+st.sidebar.button("🔄 Refresh", on_click=refresh_dashboard)
+st.sidebar.markdown("ℹ️ Silakan refresh untuk memprediksi gambar baru.")
 
 # ==========================
 # Upload 1 atau 2 gambar
@@ -80,10 +79,9 @@ RESULT_HEIGHT = 600
 # Proses upload & prediksi
 # ==========================
 if uploaded_files:
-    # Batasi maksimal 2 gambar
-    files_to_process = uploaded_files[:2]
+    files_to_process = uploaded_files[:2]  # maksimal 2 gambar
 
-    # Reset otomatis jika tombol refresh sudah ditekan
+    # Reset otomatis jika tombol refresh sudah ditekan sebelumnya
     st.session_state.preview_imgs = []
     st.session_state.result_imgs = []
     st.session_state.result_labels = []

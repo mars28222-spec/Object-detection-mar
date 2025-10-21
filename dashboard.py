@@ -32,6 +32,8 @@ if 'result_imgs' not in st.session_state:
     st.session_state.result_imgs = []
 if 'result_labels' not in st.session_state:
     st.session_state.result_labels = []
+if 'upload_key' not in st.session_state:
+    st.session_state.upload_key = 0  # untuk reset file_uploader
 
 # ==========================
 # Fungsi refresh
@@ -40,6 +42,7 @@ def refresh_dashboard():
     st.session_state.preview_imgs = []
     st.session_state.result_imgs = []
     st.session_state.result_labels = []
+    st.session_state.upload_key += 1  # ganti key agar file_uploader reset
 
 # ==========================
 # UI
@@ -57,9 +60,9 @@ st.sidebar.button("🔄 Refresh", on_click=refresh_dashboard)
 st.sidebar.markdown("ℹ️ Silakan refresh untuk memprediksi gambar baru.")
 
 # ==========================
-# Upload 1 atau 2 gambar
+# Upload 1 atau 2 gambar, reset otomatis jika key berubah
 # ==========================
-uploaded_files = st.sidebar.file_uploader("", type=["jpg","jpeg","png"], accept_multiple_files=True)
+uploaded_files = st.sidebar.file_uploader("", type=["jpg","jpeg","png"], accept_multiple_files=True, key=f"uploader_{st.session_state.upload_key}")
 
 # ==========================
 # Fungsi loading
@@ -81,7 +84,7 @@ RESULT_HEIGHT = 600
 if uploaded_files:
     files_to_process = uploaded_files[:2]  # maksimal 2 gambar
 
-    # Reset otomatis jika tombol refresh sudah ditekan sebelumnya
+    # Reset preview & hasil (untuk safety)
     st.session_state.preview_imgs = []
     st.session_state.result_imgs = []
     st.session_state.result_labels = []

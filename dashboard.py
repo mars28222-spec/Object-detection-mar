@@ -51,14 +51,14 @@ st.set_page_config(page_title="SmartVision", layout="wide")
 
 # Judul berwarna biru
 st.markdown(
-    '<h2 style="background-color:#1E90FF;color:white;padding:10px;border-radius:10px;text-align:center;">🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas</h2>',
+    '<h2 style="background-color:#1E90FF;color:white;padding:10px;border-radius:10px;text-align:center;">🍴🔍 MARs AI: Deteksi & Klasifikasi Gambar Cerdas</h2>',
     unsafe_allow_html=True
 )
 
 # Kalimat kreatif awal tetap ada
 st.markdown(
     """
-Selamat datang di SmartVision, aplikasi berbasis kecerdasan buatan yang siap membantu kamu menganalisis gambar secara otomatis! 🤖  
+Selamat datang di MARs AI, aplikasi berbasis kecerdasan buatan yang siap membantu kamu menganalisis gambar secara otomatis! 🤖  
 Aplikasi ini memiliki dua fitur unggulan:
 
 - 🍽 Deteksi Objek (YOLO) → Mengenali keberadaan sendok dan garpu dalam gambar secara cepat dan akurat.  

@@ -47,7 +47,7 @@ def refresh_dashboard():
 # ==========================
 # 🎨 UI Utama
 # ==========================
-st.set_page_config(page_title="SmartVision", layout="wide")
+st.set_page_config(page_title="MARs AI", layout="wide")
 
 # Judul berwarna biru
 st.markdown(
@@ -129,7 +129,8 @@ if uploaded_files:
             for box in results[0].boxes:
                 cls = int(box.cls)
                 label = yolo_model.names[cls] if hasattr(yolo_model,'names') else f"Kelas {cls}"
-                labels.append(f"{label} (Conf: {box.conf:.2f})")
+                conf = float(box.conf)  # Pastikan float agar tidak error
+                labels.append(f"{label} (Conf: {conf:.2f})")
 
             if not labels:
                 labels.append("Tidak ada objek terdeteksi")
@@ -141,7 +142,7 @@ if uploaded_files:
             img_resized = img.resize(target_size)
             img_array = image.img_to_array(img_resized)
             img_array = np.expand_dims(img_array, axis=0)/255.0
-            prediction = classifier.predict(img_array)[0][0]
+            prediction = float(classifier.predict(img_array)[0][0])  # Convert ke float
             predicted_label = "Retakan" if prediction>=0.5 else "Bukan Retakan"
             confidence = prediction if prediction>=0.5 else 1 - prediction
 

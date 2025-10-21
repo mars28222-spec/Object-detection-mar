@@ -5,7 +5,6 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
-from io import BytesIO
 import time
 
 # ==========================
@@ -25,25 +24,59 @@ def load_models():
 yolo_model, classifier = load_models()
 
 # ==========================
-# 🎨 UI Utama
+# 🎨 Custom CSS untuk Warna & Background
 # ==========================
-st.set_page_config(page_title="SmartVision AI Dashboard", page_icon="🍴", layout="wide")
-st.title("🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas")
 st.markdown(
     """
-Selamat datang di SmartVision! Aplikasi ini dirancang untuk memudahkan analisis gambar dengan dua fitur utama:  
-1️⃣ *Deteksi Objek (YOLO)* → mengenali sendok dan garpu.  
-2️⃣ *Klasifikasi Retakan (CNN)* → membedakan permukaan normal vs retakan.  
-Unggah gambar di bawah dan pilih mode analisis! 🚀
-"""
+    <style>
+    /* Judul utama */
+    .custom-title {
+        background-color: #99d6ff;
+        padding: 15px;
+        border-radius: 12px;
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+        color: white;
+    }
+    /* Sidebar section */
+    .custom-sidebar {
+        background-color: #cceeff;
+        padding: 10px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 10px;
+        color: #003366;
+        font-weight: bold;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
 # ==========================
-# 🧩 Sidebar & Menu
+# 🎨 UI Utama
 # ==========================
-menu = st.sidebar.selectbox("Pilih Mode Analisis:", 
-                            ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi Retakan (CNN)"])
-uploaded_file = st.sidebar.file_uploader("📤 Unggah Gambar", type=["jpg", "jpeg", "png"])
+st.set_page_config(page_title="SmartVision AI Dashboard", page_icon="🍴", layout="wide")
+st.markdown('<div class="custom-title">🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas</div>', unsafe_allow_html=True)
+st.markdown(
+    """
+Selamat datang di SmartVision! Aplikasi ini memudahkan analisis gambar dengan dua fitur utama:  
+1️⃣ *Deteksi Objek (YOLO)* → mengenali sendok dan garpu.  
+2️⃣ *Klasifikasi Retakan (CNN)* → membedakan permukaan normal vs retakan.  
+Unggah gambar di bawah dan pilih mode analisis! 🚀
+""",
+    unsafe_allow_html=True
+)
+
+# ==========================
+# 🧩 Sidebar dengan warna & background
+# ==========================
+st.sidebar.markdown('<div class="custom-sidebar">Pilih Mode Analisis</div>', unsafe_allow_html=True)
+menu = st.sidebar.selectbox("", ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi Retakan (CNN)"])
+
+st.sidebar.markdown('<div class="custom-sidebar">Unggah Gambar</div>', unsafe_allow_html=True)
+uploaded_file = st.sidebar.file_uploader("", type=["jpg", "jpeg", "png"])
 
 # ==========================
 # ⏳ Fungsi Loading Interaktif
@@ -57,25 +90,13 @@ def loading_animation(task_name="Memproses"):
 # ==========================
 if uploaded_file is not None:
     img = Image.open(uploaded_file).convert("RGB")
-    st.image(img, caption="Gambar yang Diupload", use_column_width=True)
+
+    # Resize untuk preview (kecil)
+    preview_img = img.copy()
+    preview_img.thumbnail((300, 300))
+    st.image(preview_img, caption="Gambar yang Diupload (Preview)", use_column_width=False)
     st.divider()
 
-    # ==========================
-# 🖼 Tampilkan Gambar & Proses Analisis
-# ==========================
-MAX_DISPLAY_WIDTH = 500  # Batas lebar gambar
-
-if uploaded_file is not None:
-    img = Image.open(uploaded_file).convert("RGB")
-    
-    # Resize gambar untuk tampilan agar tidak terlalu besar
-    display_img = img.copy()
-    display_img.thumbnail((MAX_DISPLAY_WIDTH, MAX_DISPLAY_WIDTH))
-    
-    st.image(display_img, caption="Gambar yang Diupload", use_column_width=False)
-    st.divider()
-
-    
     # =======================================
     # 🍴 Mode 1 - Deteksi Sendok & Garpu
     # =======================================
@@ -84,7 +105,10 @@ if uploaded_file is not None:
         loading_animation("Mendeteksi objek")
         results = yolo_model(img)
         result_img = results[0].plot()
-        st.image(result_img, caption="Hasil Deteksi YOLO", use_column_width=True)
+        # Hasil deteksi ditampilkan besar
+        result_display = Image.fromarray(result_img)
+        result_display.thumbnail((800, 800))  # lebih besar dari preview
+        st.image(result_display, caption="Hasil Deteksi YOLO", use_column_width=False)
         
         detections = results[0].boxes
         if len(detections) > 0:
@@ -96,7 +120,7 @@ if uploaded_file is not None:
 
                 st.write(f"Objek {i+1}: {label} (Confidence: {conf:.2f})")
 
-                # 🎨 Feedback kreatif berdasarkan label
+                # Feedback kreatif
                 if "sendok" in label.lower():
                     st.markdown("🥄 Wah, ada sendok elegan siap menyendok hidangan!")
                 elif "garpu" in label.lower():
@@ -120,7 +144,11 @@ if uploaded_file is not None:
         confidence = prediction if prediction >= 0.5 else 1 - prediction
         predicted_label = "Retakan" if prediction >= 0.5 else "Bukan Retakan"
 
-        st.image(img_resized, caption="🖼 Gambar yang Diprediksi", use_column_width=True)
+        # Hasil prediksi ditampilkan besar
+        display_resized = img_resized.copy()
+        display_resized.thumbnail((800, 800))
+        st.image(display_resized, caption="🖼 Gambar yang Diprediksi", use_column_width=False)
+        
         st.success(f"Prediksi: {predicted_label}")
         st.write(f"Tingkat Keyakinan Model: {confidence*100:.2f}%")
 
@@ -142,8 +170,8 @@ st.divider()
 st.markdown(
     """
 💡 Tips Penggunaan:  
-- Gunakan gambar dengan resolusi jelas untuk hasil terbaik.  
+- Gunakan gambar resolusi jelas untuk hasil terbaik.  
 - Pilih mode sesuai kebutuhan: deteksi objek atau klasifikasi retakan.  
-- Bersabar sebentar saat model memproses gambar, terutama YOLO yang membutuhkan resource lebih besar.
+- Bersabar saat model memproses gambar, terutama YOLO.
 """
 )

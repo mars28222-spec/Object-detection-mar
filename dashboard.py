@@ -57,11 +57,6 @@ st.markdown(
 # ==========================
 st.set_page_config(page_title="SmartVision AI Dashboard", page_icon="🍴", layout="wide")
 st.markdown('<div class="custom-title">🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas</div>', unsafe_allow_html=True)
-st.markdown(
-    "Selamat datang! Unggah gambar baru dan semua gambar sebelumnya akan otomatis hilang.",
-    unsafe_allow_html=True
-)
-
 # ==========================
 # Sidebar
 # ==========================
@@ -85,12 +80,10 @@ RESULT_WIDTH = 800
 RESULT_HEIGHT = 600
 
 if uploaded_files:
-    # ⚡ Reset / hapus semua variabel lama
     preview_imgs = []
     result_imgs = []
     result_labels = []
 
-    # Proses gambar terbaru
     for uploaded_file in uploaded_files:
         img = Image.open(uploaded_file).convert("RGB")
 

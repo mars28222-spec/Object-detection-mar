@@ -1,19 +1,19 @@
 import streamlit as st
-import os
-from ultralytics import YOLO
-import tensorflow as tf
-from tensorflow.keras.preprocessing import image
-import numpy as np
 from PIL import Image
 import time
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.preprocessing import image
+from ultralytics import YOLO
+import os
 
 # ==========================
-# 🔹 Setup Environment
+# Setup environment
 # ==========================
 os.system("apt-get update -y && apt-get install -y libgl1 libglib2.0-0")
 
 # ==========================
-# 🔹 Load Models
+# Load models
 # ==========================
 @st.cache_resource
 def load_models():
@@ -24,47 +24,35 @@ def load_models():
 yolo_model, classifier = load_models()
 
 # ==========================
-# 🎨 Custom CSS Judul & Sidebar
+# Inisialisasi session_state
 # ==========================
-st.markdown(
-    """
-    <style>
-    .custom-title {
-        background-color: #1E90FF;
-        padding: 15px;
-        border-radius: 12px;
-        text-align: center;
-        font-size: 32px;
-        font-weight: bold;
-        color: white;
-    }
-    .custom-sidebar {
-        background-color: #87CEFA;
-        padding: 10px;
-        border-radius: 12px;
-        text-align: center;
-        margin-bottom: 10px;
-        color: #003366;
-        font-weight: bold;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+if 'preview_imgs' not in st.session_state:
+    st.session_state.preview_imgs = []
+if 'result_imgs' not in st.session_state:
+    st.session_state.result_imgs = []
+if 'result_labels' not in st.session_state:
+    st.session_state.result_labels = []
+if 'uploaded_files_prev' not in st.session_state:
+    st.session_state.uploaded_files_prev = None
 
 # ==========================
-# UI Utama
+# UI
 # ==========================
-st.set_page_config(page_title="SmartVision AI Dashboard", page_icon="🍴", layout="wide")
-st.markdown('<div class="custom-title">🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas</div>', unsafe_allow_html=True)
-
-# ==========================
-# Sidebar
-# ==========================
-st.sidebar.markdown('<div class="custom-sidebar">Pilih Mode Analisis</div>', unsafe_allow_html=True)
+st.set_page_config(page_title="SmartVision", layout="wide")
+st.markdown('<h2 style="background-color:#1E90FF;color:white;padding:10px;border-radius:10px;text-align:center;">🍴🔍 SmartVision</h2>', unsafe_allow_html=True)
+st.sidebar.markdown('<div style="background-color:#87CEFA;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Pilih Mode Analisis</div>', unsafe_allow_html=True)
 menu = st.sidebar.selectbox("", ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi Retakan (CNN)"])
-st.sidebar.markdown('<div class="custom-sidebar">Unggah Gambar (Bisa lebih dari 1)</div>', unsafe_allow_html=True)
+st.sidebar.markdown('<div style="background-color:#87CEFA;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Unggah Gambar</div>', unsafe_allow_html=True)
 uploaded_files = st.sidebar.file_uploader("", type=["jpg","jpeg","png"], accept_multiple_files=True)
+
+# ==========================
+# Tombol Reset Upload
+# ==========================
+if st.sidebar.button("Upload Baru"):
+    st.session_state.preview_imgs = []
+    st.session_state.result_imgs = []
+    st.session_state.result_labels = []
+    st.session_state.uploaded_files_prev = None
 
 # ==========================
 # Fungsi Loading
@@ -74,39 +62,29 @@ def loading_animation(task_name="Memproses"):
         time.sleep(1.5)
 
 # ==========================
-# Konfigurasi ukuran gambar
+# Proses upload jika ada file baru
 # ==========================
 MAX_PREVIEW = 250
 RESULT_WIDTH = 800
 RESULT_HEIGHT = 600
 
-# ==========================
-# Inisialisasi session_state
-# ==========================
-if 'preview_imgs' not in st.session_state:
-    st.session_state.preview_imgs = []
-if 'result_imgs' not in st.session_state:
-    st.session_state.result_imgs = []
-if 'result_labels' not in st.session_state:
-    st.session_state.result_labels = []
-
-# ==========================
-# Reset gambar lama saat upload baru
-# ==========================
 if uploaded_files:
-    st.session_state.preview_imgs = []
-    st.session_state.result_imgs = []
-    st.session_state.result_labels = []
+    # Cek apakah upload baru berbeda dengan sebelumnya
+    if uploaded_files != st.session_state.uploaded_files_prev:
+        st.session_state.preview_imgs = []
+        st.session_state.result_imgs = []
+        st.session_state.result_labels = []
+        st.session_state.uploaded_files_prev = uploaded_files
 
     for uploaded_file in uploaded_files:
         img = Image.open(uploaded_file).convert("RGB")
 
-        # Preview kecil
+        # Preview
         preview_img = img.copy()
         preview_img.thumbnail((MAX_PREVIEW, MAX_PREVIEW))
         st.session_state.preview_imgs.append(preview_img)
 
-        # Proses sesuai mode
+        # Mode
         if menu == "Deteksi Sendok & Garpu (YOLO)":
             loading_animation("Mendeteksi objek")
             results = yolo_model(img)
@@ -140,7 +118,7 @@ if uploaded_files:
             st.session_state.result_labels.append([f"{predicted_label} ({confidence*100:.2f}%)"])
 
 # ==========================
-# Tampilkan Preview Gambar Upload
+# Tampilkan preview
 # ==========================
 if st.session_state.preview_imgs:
     st.subheader("Preview Gambar Upload")
@@ -149,7 +127,7 @@ if st.session_state.preview_imgs:
         col.image(st.session_state.preview_imgs[i], caption=f"Gambar {i+1}", use_container_width=False)
 
 # ==========================
-# Tampilkan Hasil Prediksi / Deteksi
+# Tampilkan hasil
 # ==========================
 if st.session_state.result_imgs:
     st.divider()

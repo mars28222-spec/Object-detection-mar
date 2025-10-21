@@ -74,16 +74,29 @@ def loading_animation(task_name="Memproses"):
         time.sleep(1.5)
 
 # ==========================
-# Reset gambar lama setiap upload baru
+# Konfigurasi ukuran gambar
 # ==========================
 MAX_PREVIEW = 250
 RESULT_WIDTH = 800
 RESULT_HEIGHT = 600
 
+# ==========================
+# Inisialisasi session_state
+# ==========================
+if 'preview_imgs' not in st.session_state:
+    st.session_state.preview_imgs = []
+if 'result_imgs' not in st.session_state:
+    st.session_state.result_imgs = []
+if 'result_labels' not in st.session_state:
+    st.session_state.result_labels = []
+
+# ==========================
+# Reset gambar lama saat upload baru
+# ==========================
 if uploaded_files:
-    preview_imgs = []
-    result_imgs = []
-    result_labels = []
+    st.session_state.preview_imgs = []
+    st.session_state.result_imgs = []
+    st.session_state.result_labels = []
 
     for uploaded_file in uploaded_files:
         img = Image.open(uploaded_file).convert("RGB")
@@ -91,7 +104,7 @@ if uploaded_files:
         # Preview kecil
         preview_img = img.copy()
         preview_img.thumbnail((MAX_PREVIEW, MAX_PREVIEW))
-        preview_imgs.append(preview_img)
+        st.session_state.preview_imgs.append(preview_img)
 
         # Proses sesuai mode
         if menu == "Deteksi Sendok & Garpu (YOLO)":
@@ -100,18 +113,16 @@ if uploaded_files:
             result_img = results[0].plot()
             result_display = Image.fromarray(result_img)
             result_display = result_display.resize((RESULT_WIDTH, RESULT_HEIGHT))
-            result_imgs.append(result_display)
+            st.session_state.result_imgs.append(result_display)
 
-            detections = results[0].boxes
             labels = []
-            if len(detections) > 0:
-                for i, box in enumerate(detections):
-                    cls = int(box.cls)
-                    label = yolo_model.names[cls] if hasattr(yolo_model,'names') else f"Kelas {cls}"
-                    labels.append(f"{label} (Conf: {box.conf:.2f})")
-            else:
+            for box in results[0].boxes:
+                cls = int(box.cls)
+                label = yolo_model.names[cls] if hasattr(yolo_model,'names') else f"Kelas {cls}"
+                labels.append(f"{label} (Conf: {box.conf:.2f})")
+            if not labels:
                 labels.append("Tidak ada objek terdeteksi")
-            result_labels.append(labels)
+            st.session_state.result_labels.append(labels)
 
         elif menu == "Klasifikasi Retakan (CNN)":
             loading_animation("Memprediksi gambar")
@@ -125,28 +136,32 @@ if uploaded_files:
 
             display_resized = img_resized.copy()
             display_resized = display_resized.resize((RESULT_WIDTH, RESULT_HEIGHT))
-            result_imgs.append(display_resized)
-            result_labels.append([f"{predicted_label} ({confidence*100:.2f}%)"])
+            st.session_state.result_imgs.append(display_resized)
+            st.session_state.result_labels.append([f"{predicted_label} ({confidence*100:.2f}%)"])
 
-    # ==========================
-    # Preview Gambar
-    # ==========================
+# ==========================
+# Tampilkan Preview Gambar Upload
+# ==========================
+if st.session_state.preview_imgs:
     st.subheader("Preview Gambar Upload")
-    cols_preview = st.columns(len(preview_imgs))
+    cols_preview = st.columns(len(st.session_state.preview_imgs))
     for i, col in enumerate(cols_preview):
-        col.image(preview_imgs[i], caption=f"Gambar {i+1}", use_container_width=False)
+        col.image(st.session_state.preview_imgs[i], caption=f"Gambar {i+1}", use_container_width=False)
 
+# ==========================
+# Tampilkan Hasil Prediksi / Deteksi
+# ==========================
+if st.session_state.result_imgs:
     st.divider()
-
-    # ==========================
-    # Hasil Prediksi / Deteksi
-    # ==========================
     st.subheader("Hasil Prediksi / Deteksi")
-    cols_result = st.columns(len(result_imgs))
+    cols_result = st.columns(len(st.session_state.result_imgs))
     for i, col in enumerate(cols_result):
-        col.image(result_imgs[i], caption=f"Hasil Gambar {i+1}", use_container_width=False)
-        for label_text in result_labels[i]:
+        col.image(st.session_state.result_imgs[i], caption=f"Hasil Gambar {i+1}", use_container_width=False)
+        for label_text in st.session_state.result_labels[i]:
             col.markdown(f"**{label_text}**")
 
-else:
+# ==========================
+# Pesan jika belum upload
+# ==========================
+if not uploaded_files:
     st.info("📸 Silakan unggah gambar di sidebar untuk memulai analisis.")

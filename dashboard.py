@@ -24,27 +24,40 @@ def load_models():
 yolo_model, classifier = load_models()
 
 # ==========================
-# 🎨 Custom CSS untuk Background
+# 🎨 Custom CSS & Background Gambar
 # ==========================
+HEADER_BG = "https://www.canva.com/templates/EAGQFcE0rJ0//header-bg.png"  # Ganti URL dengan gambar Canva
+SIDEBAR_BG = "https://www.canva.com/templates/EAGQFcE0rJ0//sidebar-bg.png"  # Ganti URL dengan gambar Canva
+
 st.markdown(
-    """
+    f"""
     <style>
-    /* BG untuk judul utama */
-    .stApp > header, .stApp > div.block-container {
-        background-color: #e6f7ff;
-    }
-    /* Card BG untuk judul dan menu sidebar */
-    .custom-title {
-        background-color: #99d6ff;
-        padding: 15px;
+    /* Header dengan BG gambar */
+    .stApp > header {{
+        background-image: url({HEADER_BG});
+        background-size: cover;
+        background-position: center;
+        height: 150px;
+    }}
+    .custom-title {{
+        background-image: url({HEADER_BG});
+        background-size: cover;
+        padding: 20px;
         border-radius: 12px;
         text-align: center;
-    }
-    .custom-sidebar {
-        background-color: #cceeff;
-        padding: 10px;
+        color: white;
+        font-size: 30px;
+        font-weight: bold;
+    }}
+    /* Sidebar dengan BG gambar */
+    .custom-sidebar {{
+        background-image: url({SIDEBAR_BG});
+        background-size: cover;
+        padding: 15px;
         border-radius: 12px;
-    }
+        margin-bottom: 10px;
+        color: white;
+    }}
     </style>
     """,
     unsafe_allow_html=True
@@ -53,7 +66,7 @@ st.markdown(
 # ==========================
 # 🎨 UI Utama
 # ==========================
-st.markdown('<div class="custom-title"><h1>🍴🔍 SmartVision AI Dashboard</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="custom-title">🍴🔍 SmartVision AI Dashboard</div>', unsafe_allow_html=True)
 st.markdown(
     """
 Selamat datang di *SmartVision*! Aplikasi ini dirancang untuk memudahkan analisis gambar dengan dua fitur utama:  
@@ -64,13 +77,13 @@ Selamat datang di *SmartVision*! Aplikasi ini dirancang untuk memudahkan analisi
 )
 
 # ==========================
-# 🧩 Sidebar & Menu dengan BG
+# 🧩 Sidebar dengan BG gambar
 # ==========================
-st.sidebar.markdown('<div class="custom-sidebar">', unsafe_allow_html=True)
-menu = st.sidebar.selectbox("Pilih Mode Analisis:", 
-                            ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi Retakan (CNN)"])
-uploaded_file = st.sidebar.file_uploader("📤 Unggah Gambar", type=["jpg", "jpeg", "png"])
-st.sidebar.markdown('</div>', unsafe_allow_html=True)
+st.sidebar.markdown('<div class="custom-sidebar"><h3 style="text-align:center;">Pilih Metode Analisis</h3></div>', unsafe_allow_html=True)
+menu = st.sidebar.selectbox("", ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi Retakan (CNN)"])
+
+st.sidebar.markdown('<div class="custom-sidebar"><h3 style="text-align:center;">Unggah Gambar</h3></div>', unsafe_allow_html=True)
+uploaded_file = st.sidebar.file_uploader("", type=["jpg", "jpeg", "png"])
 
 # ==========================
 # ⏳ Fungsi Loading Interaktif
@@ -87,7 +100,7 @@ MAX_DISPLAY_WIDTH = 500  # Batas lebar gambar
 if uploaded_file is not None:
     img = Image.open(uploaded_file).convert("RGB")
     
-    # Resize gambar untuk tampilan agar tidak terlalu besar
+    # Resize gambar untuk tampilan
     display_img = img.copy()
     display_img.thumbnail((MAX_DISPLAY_WIDTH, MAX_DISPLAY_WIDTH))
     
@@ -103,10 +116,8 @@ if uploaded_file is not None:
         results = yolo_model(img)
         result_img = results[0].plot()
         
-        # Resize hasil deteksi juga agar tidak terlalu besar
         result_display = Image.fromarray(result_img)
         result_display.thumbnail((MAX_DISPLAY_WIDTH, MAX_DISPLAY_WIDTH))
-        
         st.image(result_display, caption="Hasil Deteksi YOLO", use_column_width=False)
         
         detections = results[0].boxes
@@ -142,3 +153,5 @@ if uploaded_file is not None:
         st.image(display_resized, caption="🖼 Gambar yang Diprediksi", use_column_width=False)
         st.success(f"*Prediksi:* {predicted_label}")
         st.write(f"*Tingkat Keyakinan Model:* {confidence*100:.2f}%")
+else:
+    st.info("📸 Silakan unggah gambar di sidebar untuk memulai analisis.")

@@ -29,14 +29,14 @@ yolo_model, classifier = load_models()
 st.markdown(
     """
     <style>
-    /* Background seluruh dashboard */
+    /* Background seluruh dashboard -> pink lembut */
     .stApp {
-        background-color: #FFFDD0;
+        background-color: #FFC0CB;  /* pink */
     }
 
     /* Judul utama */
     .custom-title {
-        background-color: #99d6ff;
+        background-color: #1E90FF;  /* biru */
         padding: 15px;
         border-radius: 12px;
         text-align: center;
@@ -47,7 +47,7 @@ st.markdown(
 
     /* Sidebar section */
     .custom-sidebar {
-        background-color: #cceeff;
+        background-color: #87CEFA;  /* soft biru */
         padding: 10px;
         border-radius: 12px;
         text-align: center;
@@ -93,7 +93,7 @@ def loading_animation(task_name="Memproses"):
 # 🖼 Tampilkan Gambar & Proses Analisis
 # ==========================
 MAX_PREVIEW = 250
-MAX_RESULT = 600
+MAX_RESULT = 800
 
 if uploaded_files:
     preview_imgs = []
@@ -162,7 +162,6 @@ if uploaded_files:
     cols_result = st.columns(len(result_imgs))
     for i, col in enumerate(cols_result):
         col.image(result_imgs[i], caption=f"Hasil Gambar {i+1}", use_column_width=False)
-        # Tampilkan label / feedback
         for label_text in result_labels[i]:
             col.markdown(f"**{label_text}**")
 

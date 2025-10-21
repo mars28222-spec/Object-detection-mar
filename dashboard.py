@@ -131,12 +131,6 @@ if uploaded_files:
                 label = yolo_model.names[cls] if hasattr(yolo_model,'names') else f"Kelas {cls}"
                 labels.append(f"{label} (Conf: {box.conf:.2f})")
 
-                # 🎨 Kata-kata kreatif tetap dipertahankan
-                if "sendok" in label.lower():
-                    st.markdown("🥄 Wah, ada sendok elegan di sini! Siap menyendok makanan lezat 🍜")
-                elif "garpu" in label.lower():
-                    st.markdown("🍴 Terlihat garpu tajam nan gagah siap menemani sendoknya ✨")
-
             if not labels:
                 labels.append("Tidak ada objek terdeteksi")
             st.session_state.result_labels.append(labels)
@@ -155,12 +149,6 @@ if uploaded_files:
             display_resized = display_resized.resize((RESULT_WIDTH, RESULT_HEIGHT))
             st.session_state.result_imgs.append(display_resized)
 
-            # 🎨 Kata-kata kreatif tetap dipertahankan
-            if predicted_label == "Retakan":
-                st.markdown("🧱 Terlihat ada retakan! Mungkin waktunya perbaikan 💥")
-            else:
-                st.markdown("✅ Permukaannya halus dan kuat, tidak ada retakan berarti 💪")
-
             st.session_state.result_labels.append([f"{predicted_label} ({confidence*100:.2f}%)"])
 
 # ==========================
@@ -173,7 +161,7 @@ if st.session_state.preview_imgs:
         col.image(st.session_state.preview_imgs[i], caption=f"Gambar {i+1}", use_container_width=False)
 
 # ==========================
-# Tampilkan Hasil berdampingan
+# Tampilkan Hasil berdampingan & kata-kata kreatif di bawah
 # ==========================
 if st.session_state.result_imgs:
     st.divider()
@@ -181,8 +169,23 @@ if st.session_state.result_imgs:
     cols_result = st.columns(len(st.session_state.result_imgs))
     for i, col in enumerate(cols_result):
         col.image(st.session_state.result_imgs[i], caption=f"Hasil Gambar {i+1}", use_container_width=False)
+        
+        # Tampilkan label
         for label_text in st.session_state.result_labels[i]:
             col.markdown(f"**{label_text}**")
+        
+        # 🎨 Kata-kata kreatif muncul **di bawah gambar hasil**
+        if menu == "Deteksi Sendok & Garpu (YOLO)":
+            for box_text in st.session_state.result_labels[i]:
+                if "sendok" in box_text.lower():
+                    col.markdown("🥄 Wah, ada sendok elegan di sini! Siap menyendok makanan lezat 🍜")
+                elif "garpu" in box_text.lower():
+                    col.markdown("🍴 Terlihat garpu tajam nan gagah siap menemani sendoknya ✨")
+        elif menu == "Klasifikasi Retakan (CNN)":
+            if "Retakan" in st.session_state.result_labels[i][0]:
+                col.markdown("🧱 Terlihat ada retakan! Mungkin waktunya perbaikan 💥")
+            else:
+                col.markdown("✅ Permukaannya halus dan kuat, tidak ada retakan berarti 💪")
 
 # ==========================
 # Pesan jika belum upload

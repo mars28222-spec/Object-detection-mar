@@ -182,8 +182,8 @@ if st.session_state.result_imgs:
                 elif "garpu" in box_text.lower():
                     col.markdown("🍴 Terlihat garpu tajam nan gagah siap menemani sendoknya ✨")
         elif menu == "Klasifikasi Retakan (CNN)":
-            label_lower = st.session_state.result_labels[i][0].lower()
-            if "retakan" in label_lower:
+            label_text_full = st.session_state.result_labels[i][0]
+            if "retakan" in label_text_full.lower() and "bukan" not in label_text_full.lower():
                 col.markdown("🧱 Terlihat ada retakan! Mungkin waktunya perbaikan 💥")
             else:
                 col.markdown("✅ Permukaannya halus dan kuat, tidak ada retakan berarti 💪")

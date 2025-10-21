@@ -57,6 +57,7 @@ st.markdown(
 # ==========================
 st.set_page_config(page_title="SmartVision AI Dashboard", page_icon="🍴", layout="wide")
 st.markdown('<div class="custom-title">🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas</div>', unsafe_allow_html=True)
+
 # ==========================
 # Sidebar
 # ==========================
@@ -133,7 +134,7 @@ if uploaded_files:
     st.subheader("Preview Gambar Upload")
     cols_preview = st.columns(len(preview_imgs))
     for i, col in enumerate(cols_preview):
-        col.image(preview_imgs[i], caption=f"Gambar {i+1}", use_column_width=False)
+        col.image(preview_imgs[i], caption=f"Gambar {i+1}", use_container_width=False)
 
     st.divider()
 
@@ -143,7 +144,7 @@ if uploaded_files:
     st.subheader("Hasil Prediksi / Deteksi")
     cols_result = st.columns(len(result_imgs))
     for i, col in enumerate(cols_result):
-        col.image(result_imgs[i], caption=f"Hasil Gambar {i+1}", use_column_width=False)
+        col.image(result_imgs[i], caption=f"Hasil Gambar {i+1}", use_container_width=False)
         for label_text in result_labels[i]:
             col.markdown(f"**{label_text}**")
 

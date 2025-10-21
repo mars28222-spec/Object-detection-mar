@@ -24,19 +24,13 @@ def load_models():
 yolo_model, classifier = load_models()
 
 # ==========================
-# 🎨 Custom CSS untuk Background & Warna
+# 🎨 Custom CSS Judul & Sidebar
 # ==========================
 st.markdown(
     """
     <style>
-    /* Background seluruh dashboard -> pink lembut */
-    .stApp {
-        background-color: #FFC0CB;  /* pink */
-    }
-
-    /* Judul utama */
     .custom-title {
-        background-color: #1E90FF;  /* biru */
+        background-color: #1E90FF;
         padding: 15px;
         border-radius: 12px;
         text-align: center;
@@ -44,10 +38,8 @@ st.markdown(
         font-weight: bold;
         color: white;
     }
-
-    /* Sidebar section */
     .custom-sidebar {
-        background-color: #87CEFA;  /* soft biru */
+        background-color: #87CEFA;
         padding: 10px;
         border-radius: 12px;
         text-align: center;
@@ -61,46 +53,44 @@ st.markdown(
 )
 
 # ==========================
-# 🎨 UI Utama
+# UI Utama
 # ==========================
 st.set_page_config(page_title="SmartVision AI Dashboard", page_icon="🍴", layout="wide")
 st.markdown('<div class="custom-title">🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas</div>', unsafe_allow_html=True)
 st.markdown(
-    """
-Selamat datang di SmartVision! Unggah gambar di sidebar dan pilih mode analisis.  
-Preview gambar kecil akan tampil di atas, hasil prediksi/deteksi di bawah.
-""",
+    "Selamat datang! Unggah gambar baru dan semua gambar sebelumnya akan otomatis hilang.",
     unsafe_allow_html=True
 )
 
 # ==========================
-# 🧩 Sidebar dengan warna & background
+# Sidebar
 # ==========================
 st.sidebar.markdown('<div class="custom-sidebar">Pilih Mode Analisis</div>', unsafe_allow_html=True)
 menu = st.sidebar.selectbox("", ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi Retakan (CNN)"])
-
 st.sidebar.markdown('<div class="custom-sidebar">Unggah Gambar (Bisa lebih dari 1)</div>', unsafe_allow_html=True)
-uploaded_files = st.sidebar.file_uploader("", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+uploaded_files = st.sidebar.file_uploader("", type=["jpg","jpeg","png"], accept_multiple_files=True)
 
 # ==========================
-# ⏳ Fungsi Loading Interaktif
+# Fungsi Loading
 # ==========================
 def loading_animation(task_name="Memproses"):
     with st.spinner(f"{task_name}... Mohon tunggu! ⏳"):
         time.sleep(1.5)
 
 # ==========================
-# 🖼 Tampilkan Gambar & Proses Analisis
+# Reset gambar lama setiap upload baru
 # ==========================
 MAX_PREVIEW = 250
-MAX_RESULT = 800
+RESULT_WIDTH = 800
+RESULT_HEIGHT = 600
 
 if uploaded_files:
+    # ⚡ Reset / hapus semua variabel lama
     preview_imgs = []
     result_imgs = []
     result_labels = []
 
-    # Proses semua gambar
+    # Proses gambar terbaru
     for uploaded_file in uploaded_files:
         img = Image.open(uploaded_file).convert("RGB")
 
@@ -115,16 +105,15 @@ if uploaded_files:
             results = yolo_model(img)
             result_img = results[0].plot()
             result_display = Image.fromarray(result_img)
-            result_display.thumbnail((MAX_RESULT, MAX_RESULT))
+            result_display = result_display.resize((RESULT_WIDTH, RESULT_HEIGHT))
             result_imgs.append(result_display)
 
-            # Simpan label deteksi
             detections = results[0].boxes
             labels = []
             if len(detections) > 0:
                 for i, box in enumerate(detections):
                     cls = int(box.cls)
-                    label = yolo_model.names[cls] if hasattr(yolo_model, 'names') else f"Kelas {cls}"
+                    label = yolo_model.names[cls] if hasattr(yolo_model,'names') else f"Kelas {cls}"
                     labels.append(f"{label} (Conf: {box.conf:.2f})")
             else:
                 labels.append("Tidak ada objek terdeteksi")
@@ -138,15 +127,15 @@ if uploaded_files:
             img_array = np.expand_dims(img_array, axis=0)/255.0
             prediction = classifier.predict(img_array)[0][0]
             predicted_label = "Retakan" if prediction>=0.5 else "Bukan Retakan"
-            confidence = prediction if prediction >=0.5 else 1 - prediction
+            confidence = prediction if prediction>=0.5 else 1 - prediction
 
             display_resized = img_resized.copy()
-            display_resized.thumbnail((MAX_RESULT, MAX_RESULT))
+            display_resized = display_resized.resize((RESULT_WIDTH, RESULT_HEIGHT))
             result_imgs.append(display_resized)
             result_labels.append([f"{predicted_label} ({confidence*100:.2f}%)"])
 
     # ==========================
-    # Baris Preview Gambar (horizontal)
+    # Preview Gambar
     # ==========================
     st.subheader("Preview Gambar Upload")
     cols_preview = st.columns(len(preview_imgs))
@@ -156,7 +145,7 @@ if uploaded_files:
     st.divider()
 
     # ==========================
-    # Baris Hasil Prediksi / Deteksi (horizontal)
+    # Hasil Prediksi / Deteksi
     # ==========================
     st.subheader("Hasil Prediksi / Deteksi")
     cols_result = st.columns(len(result_imgs))

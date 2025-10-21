@@ -24,11 +24,17 @@ def load_models():
 yolo_model, classifier = load_models()
 
 # ==========================
-# 🎨 Custom CSS untuk Warna & Background
+# 🎨 Custom CSS untuk Background & Warna
 # ==========================
 st.markdown(
     """
     <style>
+    /* Background seluruh dashboard */
+    .stApp {
+        background-color: #FFFDD0;
+    }
+
+    /* Judul utama */
     .custom-title {
         background-color: #99d6ff;
         padding: 15px;
@@ -38,6 +44,8 @@ st.markdown(
         font-weight: bold;
         color: white;
     }
+
+    /* Sidebar section */
     .custom-sidebar {
         background-color: #cceeff;
         padding: 10px;
@@ -90,6 +98,7 @@ MAX_RESULT = 600
 if uploaded_files:
     preview_imgs = []
     result_imgs = []
+    result_labels = []
 
     # Proses semua gambar
     for uploaded_file in uploaded_files:
@@ -102,23 +111,39 @@ if uploaded_files:
 
         # Proses sesuai mode
         if menu == "Deteksi Sendok & Garpu (YOLO)":
+            loading_animation("Mendeteksi objek")
             results = yolo_model(img)
             result_img = results[0].plot()
             result_display = Image.fromarray(result_img)
             result_display.thumbnail((MAX_RESULT, MAX_RESULT))
             result_imgs.append(result_display)
 
+            # Simpan label deteksi
+            detections = results[0].boxes
+            labels = []
+            if len(detections) > 0:
+                for i, box in enumerate(detections):
+                    cls = int(box.cls)
+                    label = yolo_model.names[cls] if hasattr(yolo_model, 'names') else f"Kelas {cls}"
+                    labels.append(f"{label} (Conf: {box.conf:.2f})")
+            else:
+                labels.append("Tidak ada objek terdeteksi")
+            result_labels.append(labels)
+
         elif menu == "Klasifikasi Retakan (CNN)":
+            loading_animation("Memprediksi gambar")
             target_size = classifier.input_shape[1:3]
             img_resized = img.resize(target_size)
             img_array = image.img_to_array(img_resized)
             img_array = np.expand_dims(img_array, axis=0)/255.0
             prediction = classifier.predict(img_array)[0][0]
             predicted_label = "Retakan" if prediction>=0.5 else "Bukan Retakan"
+            confidence = prediction if prediction >=0.5 else 1 - prediction
 
             display_resized = img_resized.copy()
             display_resized.thumbnail((MAX_RESULT, MAX_RESULT))
             result_imgs.append(display_resized)
+            result_labels.append([f"{predicted_label} ({confidence*100:.2f}%)"])
 
     # ==========================
     # Baris Preview Gambar (horizontal)
@@ -137,6 +162,9 @@ if uploaded_files:
     cols_result = st.columns(len(result_imgs))
     for i, col in enumerate(cols_result):
         col.image(result_imgs[i], caption=f"Hasil Gambar {i+1}", use_column_width=False)
+        # Tampilkan label / feedback
+        for label_text in result_labels[i]:
+            col.markdown(f"**{label_text}**")
 
 else:
     st.info("📸 Silakan unggah gambar di sidebar untuk memulai analisis.")

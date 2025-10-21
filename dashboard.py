@@ -32,6 +32,8 @@ if 'result_imgs' not in st.session_state:
     st.session_state.result_imgs = []
 if 'result_labels' not in st.session_state:
     st.session_state.result_labels = []
+if 'uploaded_files_prev' not in st.session_state:
+    st.session_state.uploaded_files_prev = None
 
 # ==========================
 # UI
@@ -40,7 +42,7 @@ st.set_page_config(page_title="SmartVision", layout="wide")
 st.markdown('<h2 style="background-color:#1E90FF;color:white;padding:10px;border-radius:10px;text-align:center;">🍴🔍 SmartVision</h2>', unsafe_allow_html=True)
 st.sidebar.markdown('<div style="background-color:#87CEFA;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Pilih Mode Analisis</div>', unsafe_allow_html=True)
 menu = st.sidebar.selectbox("", ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi Retakan (CNN)"])
-st.sidebar.markdown('<div style="background-color:#87CEFA;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Unggah Gambar (1 atau 2)</div>', unsafe_allow_html=True)
+st.sidebar.markdown('<div style="background-color:#87CEFA;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Unggah Gambar (1-2)</div>', unsafe_allow_html=True)
 uploaded_files = st.sidebar.file_uploader("", type=["jpg","jpeg","png"], accept_multiple_files=True)
 
 # ==========================
@@ -58,14 +60,18 @@ RESULT_WIDTH = 800
 RESULT_HEIGHT = 600
 
 # ==========================
-# Reset jika upload baru
+# Proses upload
 # ==========================
 if uploaded_files:
-    st.session_state.preview_imgs = []
-    st.session_state.result_imgs = []
-    st.session_state.result_labels = []
+    # Reset otomatis jika upload baru berbeda dari sebelumnya
+    if uploaded_files != st.session_state.uploaded_files_prev:
+        st.session_state.preview_imgs = []
+        st.session_state.result_imgs = []
+        st.session_state.result_labels = []
+        st.session_state.uploaded_files_prev = uploaded_files
 
-    for uploaded_file in uploaded_files[:2]:  # maksimal 2 gambar
+    # Batasi maksimal 2 gambar
+    for uploaded_file in uploaded_files[:2]:
         img = Image.open(uploaded_file).convert("RGB")
 
         # Preview kecil

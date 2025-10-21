@@ -29,7 +29,6 @@ yolo_model, classifier = load_models()
 st.markdown(
     """
     <style>
-    /* Judul utama */
     .custom-title {
         background-color: #99d6ff;
         padding: 15px;
@@ -39,7 +38,6 @@ st.markdown(
         font-weight: bold;
         color: white;
     }
-    /* Sidebar section */
     .custom-sidebar {
         background-color: #cceeff;
         padding: 10px;
@@ -57,14 +55,12 @@ st.markdown(
 # ==========================
 # 🎨 UI Utama
 # ==========================
-st.set_page_config(page_title="Mars AI Dashboard", page_icon="🍴", layout="wide")
-st.markdown('<div class="custom-title">🍴🔍 Mars AI: Deteksi & Klasifikasi Gambar Cerdas</div>', unsafe_allow_html=True)
+st.set_page_config(page_title="SmartVision AI Dashboard", page_icon="🍴", layout="wide")
+st.markdown('<div class="custom-title">🍴🔍 SmartVision: Deteksi & Klasifikasi Gambar Cerdas</div>', unsafe_allow_html=True)
 st.markdown(
     """
-Selamat datang di Mars AI! Aplikasi ini memudahkan analisis gambar dengan dua fitur utama:  
-1️⃣ *Deteksi Objek (YOLO)* → mengenali sendok dan garpu.  
-2️⃣ *Klasifikasi Retakan (CNN)* → membedakan permukaan normal vs retakan.  
-Unggah gambar di sidebar dan pilih mode analisis! 🚀
+Selamat datang di SmartVision! Unggah gambar di sidebar dan pilih mode analisis.  
+Preview gambar kecil akan tampil di atas, hasil prediksi/deteksi di bawah.
 """,
     unsafe_allow_html=True
 )
@@ -88,89 +84,59 @@ def loading_animation(task_name="Memproses"):
 # ==========================
 # 🖼 Tampilkan Gambar & Proses Analisis
 # ==========================
-MAX_PREVIEW = 300  # preview kecil
-MAX_RESULT = 800   # hasil prediksi/deteksi besar
+MAX_PREVIEW = 250
+MAX_RESULT = 600
 
 if uploaded_files:
-    for idx, uploaded_file in enumerate(uploaded_files):
+    preview_imgs = []
+    result_imgs = []
+
+    # Proses semua gambar
+    for uploaded_file in uploaded_files:
         img = Image.open(uploaded_file).convert("RGB")
 
         # Preview kecil
         preview_img = img.copy()
         preview_img.thumbnail((MAX_PREVIEW, MAX_PREVIEW))
-        st.image(preview_img, caption=f"Preview Gambar {idx+1}", use_column_width=False)
-        st.divider()
+        preview_imgs.append(preview_img)
 
-        # =======================================
-        # 🍴 Mode 1 - Deteksi Sendok & Garpu
-        # =======================================
+        # Proses sesuai mode
         if menu == "Deteksi Sendok & Garpu (YOLO)":
-            st.subheader(f"🔎 Hasil Deteksi Objek Gambar {idx+1}")
-            loading_animation("Mendeteksi objek")
             results = yolo_model(img)
             result_img = results[0].plot()
             result_display = Image.fromarray(result_img)
             result_display.thumbnail((MAX_RESULT, MAX_RESULT))
-            st.image(result_display, caption=f"Hasil Deteksi YOLO Gambar {idx+1}", use_column_width=False)
-            
-            detections = results[0].boxes
-            if len(detections) > 0:
-                st.success(f"✅ Terdeteksi {len(detections)} objek!")
-                for i, box in enumerate(detections):
-                    cls = int(box.cls)
-                    conf = float(box.conf)
-                    label = yolo_model.names[cls] if hasattr(yolo_model, 'names') else f"Kelas {cls}"
-                    st.write(f"Objek {i+1}: {label} (Confidence: {conf:.2f})")
-                    if "sendok" in label.lower():
-                        st.markdown("🥄 Wah, ada sendok elegan siap menyendok hidangan!")
-                    elif "garpu" in label.lower():
-                        st.markdown("🍴 Terlihat garpu gagah menemani sendoknya ✨")
-            else:
-                st.warning("⚠ Tidak ada objek yang terdeteksi.")
+            result_imgs.append(result_display)
 
-        # =======================================
-        # 🧱 Mode 2 - Klasifikasi Retakan
-        # =======================================
         elif menu == "Klasifikasi Retakan (CNN)":
-            st.subheader(f"🧠 Hasil Klasifikasi Gambar {idx+1}")
-            loading_animation("Memprediksi gambar")
-            
             target_size = classifier.input_shape[1:3]
             img_resized = img.resize(target_size)
             img_array = image.img_to_array(img_resized)
             img_array = np.expand_dims(img_array, axis=0)/255.0
-
             prediction = classifier.predict(img_array)[0][0]
-            confidence = prediction if prediction >= 0.5 else 1 - prediction
-            predicted_label = "Retakan" if prediction >= 0.5 else "Bukan Retakan"
+            predicted_label = "Retakan" if prediction>=0.5 else "Bukan Retakan"
 
-            # Hasil prediksi besar
             display_resized = img_resized.copy()
             display_resized.thumbnail((MAX_RESULT, MAX_RESULT))
-            st.image(display_resized, caption=f"Hasil Prediksi Gambar {idx+1}", use_column_width=False)
-            st.success(f"Prediksi: {predicted_label}")
-            st.write(f"Tingkat Keyakinan Model: {confidence*100:.2f}%")
+            result_imgs.append(display_resized)
 
-            if predicted_label == "Retakan":
-                st.markdown("🧱 Terlihat ada retakan! Perlu diperhatikan 💥")
-            else:
-                st.markdown("✅ Permukaannya halus dan kuat, aman 💪")
+    # ==========================
+    # Baris Preview Gambar (horizontal)
+    # ==========================
+    st.subheader("Preview Gambar Upload")
+    cols_preview = st.columns(len(preview_imgs))
+    for i, col in enumerate(cols_preview):
+        col.image(preview_imgs[i], caption=f"Gambar {i+1}", use_column_width=False)
 
-# ==========================
-# ⚠ Jika Belum Upload Gambar
-# ==========================
+    st.divider()
+
+    # ==========================
+    # Baris Hasil Prediksi / Deteksi (horizontal)
+    # ==========================
+    st.subheader("Hasil Prediksi / Deteksi")
+    cols_result = st.columns(len(result_imgs))
+    for i, col in enumerate(cols_result):
+        col.image(result_imgs[i], caption=f"Hasil Gambar {i+1}", use_column_width=False)
+
 else:
     st.info("📸 Silakan unggah gambar di sidebar untuk memulai analisis.")
-
-# ==========================
-# 🎯 Footer & Tips UX
-# ==========================
-st.divider()
-st.markdown(
-    """
-💡 Tips Penggunaan:  
-- Gunakan gambar resolusi jelas untuk hasil terbaik.  
-- Pilih mode sesuai kebutuhan: deteksi objek atau klasifikasi retakan.  
-- Bersabar saat model memproses gambar, terutama YOLO.
-"""
-)

@@ -76,7 +76,7 @@ menu = st.sidebar.selectbox("", ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi R
 
 st.sidebar.markdown('<div style="background-color:#1E90FF;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Unggah Gambar (1-2)</div>', unsafe_allow_html=True)
 st.sidebar.button("🔄 Refresh", on_click=refresh_dashboard)
-st.sidebar.markdown("ℹ️ Silakan refresh untuk memprediksi gambar baru.")
+st.sidebar.markdown("ℹ️ Silakan refresh untuk pilihan mode analisis & memprediksi gambar baru.")
 
 # Upload 1-2 gambar, reset otomatis jika tombol refresh ditekan
 uploaded_files = st.sidebar.file_uploader(

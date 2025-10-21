@@ -55,7 +55,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Kalimat kreatif awal tetap ada
+# Kalimat kreatif awal
 st.markdown(
     """
 Selamat datang di MARs AI, aplikasi berbasis kecerdasan buatan yang siap membantu kamu menganalisis gambar secara otomatis! 🤖  
@@ -71,20 +71,32 @@ Unggah gambar favoritmu dan biarkan AI bekerja! 🚀
 # ==========================
 # Sidebar
 # ==========================
-st.sidebar.markdown('<div style="background-color:#1E90FF;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Pilih Mode Analisis</div>', unsafe_allow_html=True)
-menu = st.sidebar.selectbox("", ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi Retakan (CNN)"])
+st.sidebar.markdown(
+    '<div style="background-color:#1E90FF;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Pilih Mode Analisis</div>',
+    unsafe_allow_html=True
+)
+menu = st.sidebar.selectbox(
+    "",
+    ["Deteksi Sendok & Garpu (YOLO)", "Klasifikasi Retakan (CNN)"]
+)
 
-st.sidebar.markdown('<div style="background-color:#1E90FF;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Unggah Gambar (1-2)</div>', unsafe_allow_html=True)
-st.sidebar.button("🔄 Refresh", on_click=refresh_dashboard)
-st.sidebar.markdown("ℹ️ Silakan refresh untuk pilihan mode analisis & memprediksi gambar baru.")
+st.sidebar.markdown(
+    '<div style="background-color:#1E90FF;padding:10px;border-radius:10px;text-align:center;font-weight:bold;">Unggah Gambar (1-2)</div>',
+    unsafe_allow_html=True
+)
 
-# Upload 1-2 gambar, reset otomatis jika tombol refresh ditekan
+# Upload 1–2 gambar, reset otomatis jika tombol refresh ditekan
 uploaded_files = st.sidebar.file_uploader(
-    "📤 Drag and drop file di sini", 
-    type=["jpg","jpeg","png"], 
-    accept_multiple_files=True, 
+    "📤 Drag and drop file di sini",
+    type=["jpg", "jpeg", "png"],
+    accept_multiple_files=True,
     key=f"uploader_{st.session_state.upload_key}"
 )
+
+# 🔄 Tombol Refresh dipindahkan ke bawah file_uploader
+st.sidebar.markdown("<br>", unsafe_allow_html=True)  # memberi jarak kecil
+st.sidebar.button("🔄 Refresh", on_click=refresh_dashboard)
+st.sidebar.markdown("ℹ️ Silakan tekan refresh untuk memulai ulang analisis atau mengganti gambar.")
 
 # ==========================
 # Fungsi loading
@@ -128,8 +140,8 @@ if uploaded_files:
             labels = []
             for box in results[0].boxes:
                 cls = int(box.cls)
-                label = yolo_model.names[cls] if hasattr(yolo_model,'names') else f"Kelas {cls}"
-                conf = float(box.conf)  # Pastikan float agar tidak error
+                label = yolo_model.names[cls] if hasattr(yolo_model, 'names') else f"Kelas {cls}"
+                conf = float(box.conf)
                 labels.append(f"{label} (Conf: {conf:.2f})")
 
             if not labels:
@@ -141,10 +153,10 @@ if uploaded_files:
             target_size = classifier.input_shape[1:3]
             img_resized = img.resize(target_size)
             img_array = image.img_to_array(img_resized)
-            img_array = np.expand_dims(img_array, axis=0)/255.0
-            prediction = float(classifier.predict(img_array)[0][0])  # Convert ke float
-            predicted_label = "Retakan" if prediction>=0.5 else "Bukan Retakan"
-            confidence = prediction if prediction>=0.5 else 1 - prediction
+            img_array = np.expand_dims(img_array, axis=0) / 255.0
+            prediction = float(classifier.predict(img_array)[0][0])
+            predicted_label = "Retakan" if prediction >= 0.5 else "Bukan Retakan"
+            confidence = prediction if prediction >= 0.5 else 1 - prediction
 
             display_resized = img_resized.copy()
             display_resized = display_resized.resize((RESULT_WIDTH, RESULT_HEIGHT))
@@ -162,7 +174,7 @@ if st.session_state.preview_imgs:
         col.image(st.session_state.preview_imgs[i], caption=f"Gambar {i+1}", use_container_width=False)
 
 # ==========================
-# Tampilkan Hasil berdampingan & kata-kata kreatif di bawah
+# Tampilkan Hasil berdampingan & kata-kata kreatif
 # ==========================
 if st.session_state.result_imgs:
     st.divider()
@@ -175,7 +187,7 @@ if st.session_state.result_imgs:
         for label_text in st.session_state.result_labels[i]:
             col.markdown(f"**{label_text}**")
         
-        # 🎨 Kata-kata kreatif muncul **di bawah gambar hasil**
+        # 🎨 Kata-kata kreatif di bawah hasil
         if menu == "Deteksi Sendok & Garpu (YOLO)":
             for box_text in st.session_state.result_labels[i]:
                 if "sendok" in box_text.lower():
